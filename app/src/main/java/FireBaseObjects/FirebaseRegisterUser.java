@@ -1,15 +1,15 @@
 package FireBaseObjects;
 
-public class RegisterUser {
+public class FirebaseRegisterUser {
     String register_userId;
     int register_phonNo;
     String register_user_name, register_first_name, register_last_name, register_emailId, register_password,
             register_qualification, register_occupation;
 
-    public RegisterUser() {
+    public FirebaseRegisterUser() {
     }
 
-    public RegisterUser(String register_userId, int register_phonNo, String register_user_name, String register_first_name, String register_last_name, String register_emailId, String register_password, String register_qualification, String register_occupation) {
+    public FirebaseRegisterUser(String register_userId, int register_phonNo, String register_user_name, String register_first_name, String register_last_name, String register_emailId, String register_password, String register_qualification, String register_occupation) {
         this.register_userId = register_userId;
         this.register_phonNo = register_phonNo;
         this.register_user_name = register_user_name;

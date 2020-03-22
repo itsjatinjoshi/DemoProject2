@@ -15,6 +15,8 @@ import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import FireBaseObjects.FirebaseRegisterUser;
+
 public class RegisterUser extends AppCompatActivity {
 
     static final String LOG_TAG = RegisterUser.class.getSimpleName();
@@ -143,7 +145,7 @@ public class RegisterUser extends AppCompatActivity {
 //            finish();
 
             String register_user_id = databaseReference.push().getKey();
-            FireBaseObjects.RegisterUser registerUser = new FireBaseObjects.RegisterUser(register_user_id, userPhone, userName, userFName, userLName,
+            FirebaseRegisterUser registerUser = new FirebaseRegisterUser(register_user_id, userPhone, userName, userFName, userLName,
                     userEmail, userPassword, userQualification, userOccupation);
 
             assert register_user_id != null;
