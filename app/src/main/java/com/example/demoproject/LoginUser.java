@@ -3,11 +3,14 @@ package com.example.demoproject;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +32,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import FireBaseObjects.FirebaseRegisterUser;
+import utils.PreferenceUtils;
 
 public class LoginUser extends AppCompatActivity {
     static final String LOG_TAG = LoginUser.class.getSimpleName();
@@ -36,8 +40,10 @@ public class LoginUser extends AppCompatActivity {
     EditText etUsername, etPassword;
     Button btnLogin;
     FirebaseAuth firebaseAuth;
-    FirebaseUser firebaseUser;
+    FirebaseUser user;
     private DatabaseReference reference;
+    FirebaseUser firebaseUser;
+    FirebaseAuth.AuthStateListener mAuthListener;
     String uname, pswd;
     ProgressBar pgBar;
     TextView tvMessage;
@@ -47,11 +53,9 @@ public class LoginUser extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_user);
 
-//        if (firebaseAuth != null) {
-//            finish();
-//            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//            startActivity(intent);
-//        }
+
+
+
 
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
@@ -60,6 +64,17 @@ public class LoginUser extends AppCompatActivity {
         pgBar.setVisibility(View.GONE);
         tvMessage = findViewById(R.id.tvMessage);
         tvMessage.setVisibility(View.GONE);
+        //  ifWrongCredential(false);
+
+
+        PreferenceUtils utils = new PreferenceUtils();
+
+        if (PreferenceUtils.getUsername(this) != null ){
+            Intent intent = new Intent(LoginUser.this, MainActivity.class);
+            startActivity(intent);
+        }else{
+
+        }
 
         reference = FirebaseDatabase.getInstance().getReference();
         //   ifWrongCredential(false);
@@ -70,6 +85,7 @@ public class LoginUser extends AppCompatActivity {
             }
         });
     }
+
 
 
     public void loginUser() {
@@ -92,23 +108,22 @@ public class LoginUser extends AppCompatActivity {
                         FirebaseRegisterUser usersBean = user.getValue(FirebaseRegisterUser.class);
                         if (usersBean.getRegister_user_name().equals(uname) && usersBean.getRegister_password().equals(pswd)) {
                             ifWrongCredential(true);
-                            Log.d(LOG_TAG, "PROGRESSBAR 1");
+                            String firstname = usersBean.getRegister_first_name();
+                            Log.d(LOG_TAG, "[FIRSTNAME ] " + firstname);
+                            PreferenceUtils.saveUsername(uname, getApplicationContext());
+                            PreferenceUtils.savePassword(pswd, getApplicationContext());
+                            SharedPreferences sharedPref = getSharedPreferences("userName", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("userfirstname", firstname);
+                            editor.apply();
                             Intent intent = new Intent(LoginUser.this, MainActivity.class);
                             startActivity(intent);
                             Log.d(LOG_TAG, "USER NAME" + uname);
                             Log.d(LOG_TAG, "USER PASSWORD" + pswd);
                             Toast.makeText(LoginUser.this, "success", Toast.LENGTH_SHORT).show();
                         } else {
-                            Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ifWrongCredential(false);
-                                    Log.d(LOG_TAG, "PROGRESSBAR 2");
-                                }
-                            }, 2000);
-
-
+                            ifWrongCredential(false);
+                            Log.d(LOG_TAG, "PROGRESSBAR 2");
                         }
                     }
                 }
@@ -138,25 +153,34 @@ public class LoginUser extends AppCompatActivity {
             tvMessage.setVisibility(View.GONE);
             Log.d(LOG_TAG, "PROGRESSBAR 4");
         } else {
-//            Handler handler = new Handler(Looper.getMainLooper());
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    pgBar.setVisibility(View.VISIBLE);
-                    tvMessage.setVisibility(View.VISIBLE);
-                    tvMessage.setText("Wrong Username and Password");
-                    Log.d(LOG_TAG, "PROGRESSBAR 5");
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            pgBar.setVisibility(View.GONE);
+                            // tvMessage.setText("Wrong Username and Password");
+                        }
+
+                    }, 3000);
+
+
                 }
             });
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    tvMessage.setText("Wrong Username and Password");
+                }
 
-//                }
-//            }, 2000);
-//            Log.d(LOG_TAG, "PROGRESSBAR 6");
+            }, 4000);
 
         }
 
     }
+
+
 }
