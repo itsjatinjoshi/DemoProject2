@@ -39,22 +39,15 @@ public class LoginUser extends AppCompatActivity {
 
     EditText etUsername, etPassword;
     Button btnLogin;
-    FirebaseAuth firebaseAuth;
-    FirebaseUser user;
     private DatabaseReference reference;
-    FirebaseUser firebaseUser;
-    FirebaseAuth.AuthStateListener mAuthListener;
     String uname, pswd;
     ProgressBar pgBar;
-    TextView tvMessage;
+    TextView tvMessage, tvRegisterUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_user);
-
-
-
 
 
         etUsername = findViewById(R.id.etUsername);
@@ -64,15 +57,14 @@ public class LoginUser extends AppCompatActivity {
         pgBar.setVisibility(View.GONE);
         tvMessage = findViewById(R.id.tvMessage);
         tvMessage.setVisibility(View.GONE);
-        //  ifWrongCredential(false);
-
+        tvRegisterUser = findViewById(R.id.tvRegisterUser);
 
         PreferenceUtils utils = new PreferenceUtils();
 
-        if (PreferenceUtils.getUsername(this) != null ){
+        if (PreferenceUtils.getUsername(this) != null) {
             Intent intent = new Intent(LoginUser.this, MainActivity.class);
             startActivity(intent);
-        }else{
+        } else {
 
         }
 
@@ -84,8 +76,15 @@ public class LoginUser extends AppCompatActivity {
                 loginUser();
             }
         });
-    }
 
+        tvRegisterUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginUser.this, RegisterUser.class);
+                startActivity(intent);
+            }
+        });
+    }
 
 
     public void loginUser() {
