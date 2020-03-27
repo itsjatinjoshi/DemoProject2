@@ -28,9 +28,6 @@ public class HomeFragment extends Fragment {
 
     TextView tvWelcome;
     Button btnLogout;
-    FirebaseAuth firebaseAuth;
-    FirebaseUser firebaseUser;
-    private FirebaseAnalytics mFirebaseAnalytics;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -59,15 +56,6 @@ public class HomeFragment extends Fragment {
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("userName", MODE_PRIVATE);
         String userfirstname = sharedPreferences.getString("userfirstname", "");
-
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(getContext());Bundle bundle = new Bundle();
-
-        bundle.putString(FirebaseAnalytics.Param.METHOD, "Signin");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
 
         tvWelcome = view.findViewById(R.id.tvWelcome);
         btnLogout = view.findViewById(R.id.btnLogout);
