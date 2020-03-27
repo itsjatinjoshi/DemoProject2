@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@layout/activity_main">
+
+    <activity
+        android:id="@+id/loginUser"
+        android:name="com.example.demoproject.LoginUser"
+        android:label="activity_login_user"
+        tools:layout="@layout/activity_login_user" />
+    <activity
+        android:id="@+id/registerUser"
+        android:name="com.example.demoproject.RegisterUser"
+        android:label="activity_register_user"
+        tools:layout="@layout/activity_register_user" />
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.example.demoproject.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" />
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.demoproject.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.demoproject.CameraFragment"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.demoproject.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+</navigation>
