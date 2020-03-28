@@ -56,6 +56,12 @@ public class HomeFragment extends Fragment {
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("userName", MODE_PRIVATE);
         String userfirstname = sharedPreferences.getString("userfirstname", "");
+        String occupation = sharedPreferences.getString("occupation", "");
+        String qualification = sharedPreferences.getString("qualification", "");
+
+        Log.d("HOMEFRAGMENT USERNAME ", userfirstname);
+        Log.d("HOMEFRAGMENT_OCCUPATION", occupation);
+        Log.d("HOMEFRAGMENT_QUALIFI", qualification);
 
         tvWelcome = view.findViewById(R.id.tvWelcome);
         btnLogout = view.findViewById(R.id.btnLogout);

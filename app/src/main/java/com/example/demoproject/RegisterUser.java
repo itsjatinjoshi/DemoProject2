@@ -32,8 +32,8 @@ public class RegisterUser extends AppCompatActivity {
     TextView tvLogin;
     String userName, userFName, userLName, userEmail, userPassword, userQualification, userOccupation;
     int userPhone;
-    String[] occupation = {"--", "Student", "Teacher", "Professional"};
-    String[] qualification = {"--", "Graduation", "Master", "Diploma", "School"};
+    String[] occupation = {"Please Select Occupation*", "Student", "Teacher", "Professional"};
+    String[] qualification = {"Please Select Qualification*", "Graduation", "Master", "Diploma", "School"};
 
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
@@ -43,7 +43,7 @@ public class RegisterUser extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_user);
 
-
+        resetAllFields(false);
         etUsername = findViewById(R.id.etUsername);
         etFirstName = findViewById(R.id.etFirstName);
         etLastName = findViewById(R.id.etLastName);
@@ -101,6 +101,8 @@ public class RegisterUser extends AppCompatActivity {
 
                 registerUser();
 
+                resetAllFields(true);
+
             }
         });
 
@@ -147,10 +149,10 @@ public class RegisterUser extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Password Doesn't Match", Toast.LENGTH_SHORT).show();
         } else if (etPhone.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Please enter Phone Number", Toast.LENGTH_SHORT).show();
-        } else if (spinnerQualification.getSelectedItem().toString().trim().equals("--")) {
+        } else if (spinnerQualification.getSelectedItem().toString().trim().equals("Please Select Qualification")) {
             Toast.makeText(getApplicationContext(), "Please Select Qualification Option", Toast.LENGTH_SHORT).show();
-        } else if (spinnerOccupation.getSelectedItem().toString().trim().equals("--")) {
-            Toast.makeText(getApplicationContext(), "Please Select Qualification Option", Toast.LENGTH_SHORT).show();
+        } else if (spinnerOccupation.getSelectedItem().toString().trim().equals("Please Select Occupation")) {
+            Toast.makeText(getApplicationContext(), "Please Select Occupation", Toast.LENGTH_SHORT).show();
         } else {
             Log.d(LOG_TAG, "[REGISTER INSIDE THE ELSE CONDITION]");
             userName = etUsername.getText().toString().trim();
@@ -184,6 +186,31 @@ public class RegisterUser extends AppCompatActivity {
         }
 
 
+    }
+    //todo: set spinner arrow at dropdown spinners
+
+    public void resetAllFields(boolean accountCreated){
+
+        if(accountCreated){
+            try{
+                etUsername.setText("");
+                etFirstName.setText("");
+                etLastName.setText("");
+                etMail.setText("");
+                etPass.setText("");
+                etConfirmPass.setText("");
+                etPhone.setText("");
+                spinnerQualification.setSelection(Integer.parseInt("Please Select Qualification"));
+                spinnerOccupation.setSelection(Integer.parseInt("Please Select Occupation"));
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+        else{
+            Toast.makeText(RegisterUser.this, "Something Went Wrong", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

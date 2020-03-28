@@ -108,12 +108,19 @@ public class LoginUser extends AppCompatActivity {
                         if (usersBean.getRegister_user_name().equals(uname) && usersBean.getRegister_password().equals(pswd)) {
                             ifWrongCredential(true);
                             String firstname = usersBean.getRegister_first_name();
+                            String occupation = usersBean.getRegister_occupation();
+                            String qualification= usersBean.getRegister_qualification();
                             Log.d(LOG_TAG, "[FIRSTNAME ] " + firstname);
+                            Log.d(LOG_TAG, "[occupation ] " + occupation);
+                            Log.d(LOG_TAG, "[qualification ] " + qualification);
+
                             PreferenceUtils.saveUsername(uname, getApplicationContext());
                             PreferenceUtils.savePassword(pswd, getApplicationContext());
                             SharedPreferences sharedPref = getSharedPreferences("userName", MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("userfirstname", firstname);
+                            editor.putString("occupation", occupation);
+                            editor.putString("qualification", qualification);
                             editor.apply();
                             Intent intent = new Intent(LoginUser.this, MainActivity.class);
                             startActivity(intent);
