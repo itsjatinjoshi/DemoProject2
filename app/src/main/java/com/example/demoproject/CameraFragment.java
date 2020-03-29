@@ -93,7 +93,7 @@ public class CameraFragment extends Fragment {
 
     private void selectDocuments() {
         Intent intent = new Intent();
-        intent.setType("application/pdf");
+        intent.setType("*/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
 
         startActivityForResult(Intent.createChooser(intent, "Select for PDF"), 1);

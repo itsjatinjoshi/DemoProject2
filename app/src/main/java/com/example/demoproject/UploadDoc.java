@@ -1,14 +1,20 @@
 package com.example.demoproject;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +33,11 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+
 import FireBaseObjects.UploadDocumentsToFirebase;
+
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -41,7 +51,10 @@ public class UploadDoc extends Fragment {
 
     StorageReference storageReference;
     DatabaseReference databaseReference;
-
+    ConstraintLayout constrainLayout;
+    private final static String TAG_FRAGMENT = "TAG_FRAGMENT";
+    String editField, value;
+    Uri myUri;
 
     public UploadDoc() {
         // Required empty public constructor
@@ -59,7 +72,7 @@ public class UploadDoc extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final String value = getArguments().getString("pdfPath");
+        value = getArguments().getString("pdfPath");
 
         Log.d("[UPLOADDOC]", value);
 
@@ -69,18 +82,32 @@ public class UploadDoc extends Fragment {
 
         etFilePath = view.findViewById(R.id.etFilePath);
         tvSuccessMsg = view.findViewById(R.id.tvSuccessMsg);
-
+        constrainLayout = view.findViewById(R.id.constrainLayout);
+        constrainLayout.setVisibility(View.GONE);
         storageReference = FirebaseStorage.getInstance().getReference();
         databaseReference = FirebaseDatabase.getInstance().getReference("upload_documents");
-        clearEditTextField(false);
+
         etFilePath.setText(value);
 
-        final Uri myUri = Uri.parse(value);
+        btnUploadMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectDocuments();
+            }
+        });
+
+        myUri = Uri.parse(value);
+        Log.d("UPLOAD_URI", "final Uri myUri" + myUri);
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadPDFFile(myUri);
-                clearEditTextField(true);
+//                if (etFilePath.getText().toString().isEmpty()) {
+//                    Toast.makeText(getContext(), "Please attach file", Toast.LENGTH_SHORT).show();
+//                    Log.d("[UPLOAD_DOCUMENT]", "CHECKPOINT 2");
+//                } else {
+                    uploadPDFFile(myUri);
+                    etFilePath.setText("");
+             //   }
             }
         });
 
@@ -89,46 +116,80 @@ public class UploadDoc extends Fragment {
 
 
     private void uploadPDFFile(Uri data) {
-        if (etFilePath.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "Please attach file", Toast.LENGTH_SHORT).show();
-        } else {
-            final String editField = etFilePath.getText().toString();
-            final ProgressDialog progressDialog = new ProgressDialog(getContext());
-            progressDialog.setTitle("File Uploading...");
-            progressDialog.setMessage("Please wait");
-            progressDialog.show();
+        Log.d("[UPLOAD_DOCUMENT]", "CHECKPOINT 1");
 
-            StorageReference reference = storageReference.child("uploads/" + System.currentTimeMillis() + ".pdf");
-            reference.putFile(data)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Task<Uri> uri = taskSnapshot.getStorage().getDownloadUrl();
-                            while ((!uri.isComplete())) ;
-                            Uri url = uri.getResult();
-                            UploadDocumentsToFirebase documents = new UploadDocumentsToFirebase(editField, url.toString());
-                            databaseReference.child(databaseReference.push().getKey()).setValue(documents);
-                            Toast.makeText(getContext(), "Uploaded Successfully", Toast.LENGTH_SHORT).show();
-                            progressDialog.dismiss();
-                        }
-                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+        long tsLong = System.currentTimeMillis() / 1000;
+        final String ts = Long.toString(tsLong);
 
-                    long progress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                    progressDialog.setMessage("UPLOADING : " + (int) progress + "%");
-                }
-            });
-        }
+
+        //Todo - make sure edit text check the last extension as .pdf, docs, txt etc
+        Log.d("[UPLOAD_DOCUMENT]", "CHECKPOINT 3");
+        editField = etFilePath.getText().toString();
+        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("File Uploading...");
+        progressDialog.setMessage("Please wait");
+        progressDialog.show();
+
+        StorageReference reference = storageReference.child("uploads/" + System.currentTimeMillis());
+        reference.putFile(data)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Task<Uri> uri = taskSnapshot.getStorage().getDownloadUrl();
+                        while ((!uri.isComplete())) ;
+                        Uri url = uri.getResult();
+                        UploadDocumentsToFirebase documents = new UploadDocumentsToFirebase(editField, url.toString(), ts);
+                        databaseReference.child(databaseReference.push().getKey()).setValue(documents);
+                        Toast.makeText(getContext(), "Uploaded Successfully", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                        constrainLayout.setVisibility(View.VISIBLE);
+                        etFilePath.setText("");
+
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+
+                long progress = (100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                progressDialog.setMessage("UPLOADING : " + (int) progress + "%");
+                constrainLayout.setVisibility(View.VISIBLE);
+                Log.d("[UPLOAD_DOCUMENT]", "CHECKPOINT 4");
+            }
+        });
+
     }
 
-    public void clearEditTextField(boolean clear) {
+    private void selectDocuments() {
+        Intent intent = new Intent();
+        intent.setType("*/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
 
-        if (clear) {
-            etFilePath.setText("");
-        }
+        startActivityForResult(Intent.createChooser(intent, "Select for PDF"), 1);
+        Toast.makeText(getContext(), "SELECTED FILE 1", Toast.LENGTH_LONG).show();
+        Log.d("[UPLOAD_DOCUMENT]", "to check");
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("[UPLOAD_DOCUMENT]", "to check 1");
+
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+
+            Log.d("[UPLOAD_DOCUMENT]", "REAL URI" + uri);
+
+
+            Bundle args = new Bundle();
+            args.putString("pdfPath", String.valueOf(uri));
+
+            UploadDoc fragment = new UploadDoc();
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            fragment.setArguments(args);
+            ft.add(R.id.uploadDoc, fragment).commit();
+        }
+    }
 
 }
